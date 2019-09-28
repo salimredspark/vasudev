@@ -13,5 +13,5 @@ class Companies extends Eloquent {
     protected  $fillable = array('company_name', 'tag_name', 'created_at');
 
     #const CREATED_AT = 'creation_date';
-    #const UPDATED_AT = 'last_update';        
+    #const UPDATED_AT = 'last_update';         
 }

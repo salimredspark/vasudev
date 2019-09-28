@@ -7,7 +7,7 @@ use Jenssegers\Mongodb\Eloquent\Model as Eloquent;
 class Tags extends Eloquent {
 
     protected $collection = 'tags'; //table name
-    protected $connection = 'mongodb'; //db alias
+    protected $connection = 'mongodb'; //db alias 
 
     public static function getAllTagCalss(){
         return ['primary','secondary','success','danger','warning','info','dark'];

@@ -13,7 +13,7 @@ class Customers extends Eloquent {
     protected  $fillable = array('company_id', 'created_at');
 
     #const CREATED_AT = 'creation_date';
-    #const UPDATED_AT = 'last_update';        
+    #const UPDATED_AT = 'last_update' ;        
     
     public static function getDB(){
           $customers = DB::table('customers')->whereRaw("FIND_IN_SET('india', tag_name)  = 0 ")->get();
