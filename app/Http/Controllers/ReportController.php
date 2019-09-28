@@ -32,4 +32,4 @@ class ReportController extends Controller{
         return view('report.list', ["companies"=>$companies, 'allTags'=>$uniqueTags, 'tagClass'=>$tagClass]);        
     }
 
-}
+} 

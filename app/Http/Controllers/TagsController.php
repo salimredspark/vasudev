@@ -34,4 +34,4 @@ class TagsController extends Controller{
         return view('tags.list', ["companies"=>$companies, 'allTags'=>$uniqueTags, 'tagClass'=>$tagClass]);        
     }
 
-}
+} 

@@ -296,4 +296,4 @@ class CompaniesController extends Controller{
 
         return $data;
     }
-}
+} 
