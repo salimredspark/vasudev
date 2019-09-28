@@ -53,7 +53,6 @@
                             </div>
 
                             <button type="submit" class="btn btn-primary" name="btn_save_upload">Save</button>
-
                         </form>
                     </div>
                 </div>

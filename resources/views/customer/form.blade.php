@@ -53,7 +53,6 @@
                             @empty
 
                             @endforelse
-
                             <button type="submit" class="btn btn-primary" name="btn_save_customer">Save</button>
                         </form>
                     </div>

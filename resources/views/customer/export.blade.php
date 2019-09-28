@@ -99,7 +99,7 @@
     $(document).ready(function() {                                    
 
         //ref jquery: https://querybuilder.js.org/
-        //ref: laravel : http://jsfiddle.net/graphitekom/ap9gxo4L/
+        //ref: laravel : http://jsfiddle.net/graphitekom/ap9gxo4L/  
 
         var CSRF_TOKEN = $('meta[name="csrf-token"]').attr('content');
 
