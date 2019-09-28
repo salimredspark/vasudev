@@ -19,4 +19,4 @@ Site Ref: https://www.vasudev.com
  - jenssegers/laravel-mongodb for Laravel + MongoDB database connection 
  - Ref: https://github.com/jenssegers/laravel-mongodb
  - jQuery Builder : jQuery ver. 1.10, ver. Bootstrap >= 3.1
- - jQuery DataTables Ref: https://datatables.net/
+ - jQuery DataTables ver. 1.10.19 | Ref: https://datatables.net
