@@ -84,6 +84,9 @@ C:\Program Files\MongoDB\Server\3.2\bin;
 vasudev.com
 admin@vasudev.com
 vasu@dev2019
+
+http://localhost/projects/vasudev/public/home
+
 ---------------------------------------------------------------------------------------------------------------------------------------------
 Note:
 Column C, “SederID”,  in file name “VSLLP MDR _ vasupujya _ 21 Aug2019.xlsx”, Please consider it as on of the Tag, as discussed.  Also use another tag, “Real Estate Supplier”.

@@ -13,4 +13,4 @@ We’ve used our expertise and experience in digital communications and mix of the
 
 ## What in Vasudev
 
-We used Laravel and MongoDB.
+We used Laravel Version 5.8.35 and MongoDB Version 3.2.22.
