@@ -17,5 +17,5 @@ Site Ref: https://www.vasudev.com
  - Laravel Version 5.8.35.
  - MongoDB Version 3.2.22 for Database
  - Laravel + MongoDB database connection | Ref: https://github.com/jenssegers/laravel-mongodb
- - jQuery Builder + Laravel | Ref: https://github.com/timgws/QueryBuilderParser
- - jQuery DataTables ver. 1.10.19 | Ref: https://datatables.net
+ - Query Builder + Laravel | Ref: https://github.com/timgws/QueryBuilderParser
+ - DataTables ver. 1.10.19 | Ref: https://datatables.net
