@@ -176,11 +176,13 @@
                     }else{
                         alert('Ajax: Something went wrong!');
                         $("#totalFound").html("");
+                        $("#totalFound").hide();
                     }
                 }, 
                 error: function(xhr) {
                     alert('Error: Something went wrong!');  
                     $("#totalFound").html("");
+                    $("#totalFound").hide();
                 }
             });
 
