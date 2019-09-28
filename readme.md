@@ -11,8 +11,10 @@
 
 We’ve used our expertise and experience in digital communications and mix of the best technologies to bring you one of the most powerful communication and customer engagement solutions. We can flood you with our data on uptime or latency, but that does not show how hard we work for it. We just say that we make sure that each communication gets through - with highest quality possible.
 
+Priyang Haribhai Patel, Founder : VASUDEV Group
+
 ## What in Vasudev        
 
- - [Laravel Version 5.8.35.
- - [MongoDB Version 3.2.22 for Database
- - [jQuery Builder : jQuery 1.10, Bootstrap >= 3.1
+ - Laravel Version 5.8.35.
+ - MongoDB Version 3.2.22 for Database
+ - jQuery Builder : jQuery 1.10, Bootstrap >= 3.1
