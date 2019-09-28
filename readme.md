@@ -12,10 +12,11 @@ Priyang Haribhai Patel, Founder : VASUDEV Group
 
 Site Ref: https://www.vasudev.com
 
-## What in Vasudev        
+## Vasudev Website Requirements
 
  - Laravel Version 5.8.35.
  - MongoDB Version 3.2.22 for Database
  - jenssegers/laravel-mongodb for Laravel + MongoDB database connection 
  - Ref: https://github.com/jenssegers/laravel-mongodb
- - jQuery Builder : jQuery 1.10, Bootstrap >= 3.1
+ - jQuery Builder : jQuery ver. 1.10, ver. Bootstrap >= 3.1
+ - jQuery DataTables Ref: https://datatables.net/
