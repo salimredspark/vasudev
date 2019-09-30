@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Companies;
 use App\Customers;
+use App\User;
 use App\Tags;
 use App\Import;
 use App\Export;
@@ -12,6 +13,7 @@ use Log;
 use Auth;
 use DB;
 use timgws\QueryBuilderParser;
+use timgws\JoinSupportingQueryBuilderParser;
 use Illuminate\Support\Facades\Input;
 
 class CustomerController extends Controller{
@@ -20,6 +22,7 @@ class CustomerController extends Controller{
         $this->middleware('auth');
     }
 
+    //default customer list page
     public function index(Request $request){                        
 
         $filter_tag = $request->tag;
@@ -27,6 +30,7 @@ class CustomerController extends Controller{
         return view('customer.list', ['tags'=>$tagClass, 'filter_tag'=>$filter_tag, 'row'=>1, 'request' => $request]);        
     }
 
+    //create new customer template
     public function create(){    
 
         $customer = Customers::all()->first();
@@ -40,6 +44,7 @@ class CustomerController extends Controller{
         return view('customer.form', ['id' => false, 'customer' => new Customers,  "companies"=>$companies, 'columns' => $columns, 'row'=>1]);
     }
 
+    //update customer template
     public function update(Request $request){        
         $id = $request->id;
         $customer = Customers::find($id); 
@@ -55,6 +60,7 @@ class CustomerController extends Controller{
         return view('customer.form', ['id' => $id, 'customer' => $customer, "companies"=>$companies, 'columns' => $columns, 'row'=>1]);
     }
 
+    //update or create new customer
     public function store(Request $request){        
         $id = $request->id;       
 
@@ -95,6 +101,7 @@ class CustomerController extends Controller{
         return redirect()->route('customer-list');
     }
 
+    //delete single customer
     public function destroy(Request $request){  
 
         $id = $request->id; 
@@ -104,6 +111,7 @@ class CustomerController extends Controller{
         return redirect()->route('customer-list');
     }
 
+    //delete all customers
     public function deleteall(Request $request){        
 
         Customers::truncate();
@@ -112,6 +120,7 @@ class CustomerController extends Controller{
         return redirect()->route('customer-list');
     }
 
+    //ajax request for get records list
     public function ajaxpage(Request $request){                                        
 
         $limit = intval($request->length); 
@@ -172,11 +181,13 @@ class CustomerController extends Controller{
         return json_encode($data);                
     }
 
+    //import customers template
     public function import(Request $request){
         $companies = Companies::all()->sortBy("company_name");       
         return view('customer.import', ["companies"=>$companies]); 
     }
 
+    //save import customers
     public function saveImport(Request $request){
         $file = $request->file('upload_file');
 
@@ -298,21 +309,30 @@ class CustomerController extends Controller{
         return redirect()->route('customer-list');
     }
 
+    //get export template
     public function export(Request $request){
         $customer =  Customers::all()->first();      
 
-        $skipColumns = array('_id');
+        $skipColumns = array('_id', 'created_at', 'updated_at');
         $columns = array_keys($customer->getAttributes()); 
         foreach($skipColumns as $kk) {
-            $indexCompleted = array_search($kk, $columns);
+            $indexCompleted = array_search($kk, $columns);            
             unset($columns[$indexCompleted]);
         }
+
+        //replace lable
+        $replacements = array('company_id' => 'company_name');
+        foreach ($columns as $key => $value) {
+            if (isset($replacements[$value])) {
+                $columns[$key] = $replacements[$value];
+            }
+        }        
 
         $allTags = Customers::select('tag_name')->get()->toArray();        
         if(count($allTags) > 0){
             foreach($allTags as $tag){
                 $tagsInArr = explode(",",$tag['tag_name']);
-                foreach($tagsInArr as $t){
+                foreach($tagsInArr as $t){                    
                     $returnTagsArr[] = array('value'=>$t, 'label'=>$t);                
                 }
             }
@@ -321,15 +341,17 @@ class CustomerController extends Controller{
         return view('customer.export', [ "columns"=> $columns, 'jsTags' => json_encode($returnTagsArr) ] );
     }
 
+    //get export query records counts
     public function exportQueryCounts(Request $request){
 
         $response = array();
         if(!empty($request['querybuilder']))
         {                            
             $table = DB::collection('customers');
-            $qbp = new QueryBuilderParser( array( 'tag_name', 'Number', 'SenderId' ) );
+            $qbp = new QueryBuilderParser( array( 'tag_name' ) );
 
-            $query = $qbp->parse(json_encode($request['querybuilder']), $table);
+            $query = $qbp->parse(json_encode($request['querybuilder']), $table); 
+                                    
             $rows = $query->get();
 
             $response = array(
@@ -340,48 +362,40 @@ class CustomerController extends Controller{
         return response()->json($response);
     }
 
-    public function exportall(Request $request){{
+    //get export in csv format
+    public function exportall(Request $request){
 
-            /* 
-            $fields = $request->input('fields');
-            $allcolumns = Customers::all(); // All columns
-            $csvExporter = new \Laracsv\Export();
-            $csvExporter->build($allcolumns,  explode(",", $fields) )->download('customers_download_csv.csv');
-            */             
+        $limit = intval($request->setLimit);
+        $limitType = $request->setLimitType;
+        $iseSelectAll = $request->selectAll;//is selected all if yes "on"
+        $fields = $request->input('fields'); 
+        
+        //Ref: QueryBuilderParser | https://github.com/timgws/QueryBuilderParser
 
+        //non join query         
+        $table = DB::collection('customers');
+        $qbp = new QueryBuilderParser( array( 'tag_name', 'Number', 'SenderId' ) );
+        $json = preg_replace("!\r?\n!", "", $request->querybuilder);
+        $query = $qbp->parse($json, $table);        
 
-            $limit = intval($request->setLimit);
-            $limitType = $request->setLimitType;
-            $iseSelectAll = $request->selectAll;//is selected all if yes "on"
-
-            $table = DB::collection('customers');
-            $qbp = new QueryBuilderParser( array( 'tag_name', 'Number', 'SenderId' ) );
-
-            $json = preg_replace("!\r?\n!", "", $request->querybuilder);                                    
-
-            $query = $qbp->parse($json, $table);
-
-            //$jsqbp = new JoinSupportingQueryBuilderParser($fields, $this->getJoinFields());
-
-            if($limitType == 'all'){
-                $rows = $query->offset(0)->limit($limit)->get();
-            }            
-            if($limitType == 'top'){
-                $rows = $query->offset(0)->limit($limit)->orderBy('created_at', 'DESC')->get();
-            }
-            if($limitType == 'random'){
-                $rows = $query->offset(0)->limit($limit)->orderBy("RAND()")->get(); 
-            }
-
-            $fields = $request->input('fields');
-            
-            $csvExporter = new \Laracsv\Export();
-            $filename = 'export_customers_'.date('dMY').'_'.md5(rand(111,999)).'.csv';
-            $csvExporter->build($rows,  $fields )->download($filename);
-        }                                  
+        $rows = [];
+        if($limitType == 'all'){
+            $rows = $query->offset(0)->limit($limit)->get();
+        }            
+        if($limitType == 'top'){
+            $rows = $query->offset(0)->limit($limit)->orderBy('created_at', 'DESC')->get();
+        }
+        if($limitType == 'random'){
+            $rows = $query->offset(0)->limit($limit)->orderBy("RAND()")->get(); 
+        }
+                   
+        $csvExporter = new \Laracsv\Export();
+        $filename = 'export_customers_'.date('dMY').'_'.md5(rand(111,999)).'.csv';
+        $csvExporter->build($rows,  $fields)->download($filename);                                      
     }
 
-    function csvToArray($filename = '', $delimiter = ','){
+    //convert csv to an array
+    public function csvToArray($filename = '', $delimiter = ','){
         if (!file_exists($filename) || !is_readable($filename))
             return false;
 
@@ -402,11 +416,13 @@ class CustomerController extends Controller{
         return $data;
     }
 
+    //assign tag in bulk to customer tepmplate
     public function assignTagsInBulk(){
         $companies = Companies::all()->sortBy("company_name");
         return view('customer.assigntags', ["companies"=>$companies]);
     }
 
+    //save assign tags to customer in bulk
     public function saveAssignTagsInBulk(Request $request){
         $validator = $request->validate([
         'company_id' => 'required',
@@ -453,6 +469,4 @@ class CustomerController extends Controller{
         $request->session()->flash('success','Successfully tags assigned.');    
         return redirect()->route('customer-assign-tags');
     }
-
-
 } 

@@ -10,7 +10,7 @@ class Customers extends Eloquent {
     protected $collection = 'customers'; //table name
     protected $connection = 'mongodb'; //db alias
 
-    protected  $fillable = array('company_id', 'created_at');
+    protected  $fillable = array('company_id', 'created_by');
 
     #const CREATED_AT = 'creation_date';
     #const UPDATED_AT = 'last_update' ;        

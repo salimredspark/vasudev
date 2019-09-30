@@ -46,7 +46,7 @@
                                         </div>
 
                                         <div id="totalFound" style="display: none;"></div>
-                                        
+
                                         <div class="section-tools" style="display: none;">
                                             <div class="extras">
                                                 <textarea name="querybuilder" id="json-parsed" class="json-parsed" cols="100" rows="5" style="display: none;"></textarea>                                                
@@ -115,7 +115,7 @@
                 label: 'Tags',
                 type: 'string',
                 //operators: ['equal', 'not_equal', 'in', 'not_in', 'contains']
-                operators: ['contains', 'not_contains']
+                operators: ['contains', 'not_contains'] //,'begins_with','not_begins_with','ends_with','not_ends_with'
             }]
 
         });
@@ -174,7 +174,7 @@
                         $("#setLimit").val(data.counts);
                         $(".section-tools").show(); // show other option after query run
                     }else{
-                        alert('Ajax: Something went wrong!');
+                        //alert('Ajax: Something went wrong!');
                         $("#totalFound").html("");
                         $("#totalFound").hide();
                     }
@@ -193,7 +193,12 @@
 
         //export in csv
         $(".exportall").click(function(){            
-            $("#query-builder-form").submit();            
+
+            if(!$('.section-tools').is(":hidden")){
+                $("#query-builder-form").submit();  
+            }else{
+                alert("Please select or run first query");
+            }          
         });
 
         $("#selectAll").click(function () {
