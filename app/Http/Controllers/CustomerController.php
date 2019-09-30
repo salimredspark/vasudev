@@ -353,7 +353,7 @@ class CustomerController extends Controller{
             $query = $qbp->parse(json_encode($request['querybuilder']), $table);
             $rows = $query->get()->toArray();
             
-            echo '<pre>';print_r($rows);echo '</pre>';die('developer is working');
+            #echo '<pre>';print_r($rows);echo '</pre>';die('developer is working');
             
             $response = array(
             'status' => 'success',
