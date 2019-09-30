@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Customers; 
 //use Illuminate\Foundation\Auth\User as Authenticatable; 
 use Jenssegers\Mongodb\Auth\User as Authenticatable;
 
@@ -11,6 +12,10 @@ class User extends Authenticatable
 {
     use Notifiable;
 
+    protected $collection = 'users'; //table name
+    protected $connection = 'mongodb'; //db alias
+    protected $primaryKey = '_id'; 
+    
     /**
      * The attributes that are mass assignable.
      *
@@ -37,4 +42,8 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+    
+    public function getcustomers(){
+        return $this->hasOne(Customers::class);
+    }
 }

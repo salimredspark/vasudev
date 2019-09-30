@@ -351,7 +351,7 @@ class CustomerController extends Controller{
             $qbp = new QueryBuilderParser( array( 'tag_name' ) );
 
             $query = $qbp->parse(json_encode($request['querybuilder']), $table);
-            $rows = $query->get()->toArray();
+            $rows = $query->get()->toArray(); //already including $query get()
             
             #echo '<pre>';print_r($rows);echo '</pre>';die('developer is working');
             
@@ -377,11 +377,8 @@ class CustomerController extends Controller{
         $table = DB::collection('customers');
         $qbp = new QueryBuilderParser( array( 'tag_name', 'Number', 'SenderId' ) );
         $json = preg_replace("!\r?\n!", "", $request->querybuilder);
-        $query = $qbp->parse($json, $table);        
+        $query = $qbp->parse($json, $table);
         
-        //echo '<pre>';print_r($query->toSql());echo '</pre>';die('developer is working');
-        
-
         $rows = [];
         if($limitType == 'all'){
             $rows = $query->offset(0)->limit($limit)->get();
