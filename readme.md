@@ -17,7 +17,6 @@ Site Ref: https://www.vasudev.com
  - Laravel Version 5.8.35 | Ref: https://laravel.com/docs/5.8
  - MongoDB Version 3.2.22 for Database | Database hosted on mlab | Ref: https://mlab.com
  - Laravel + MongoDB Database Connection Module | Ref: https://github.com/jenssegers/laravel-mongodb
- - QueryBuilderParser Query Builder | Ref: https://github.com/timgws/QueryBuilderParser
- - Moloquent Query Builder  | Ref: https://moloquent.github.io/master
+ - QueryBuilderParser Query Builder | Ref: https://github.com/timgws/QueryBuilderParser 
  - DataTables ver. 1.10.19 for data list grid | Ref: https://datatables.net
  

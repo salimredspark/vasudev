@@ -351,9 +351,9 @@ class CustomerController extends Controller{
             $qbp = new QueryBuilderParser( array( 'tag_name' ) );
 
             $query = $qbp->parse(json_encode($request['querybuilder']), $table);
-            $rows = $query->get();
+            $rows = $query->get()->toArray();
             
-            //echo '<pre>';print_r($query->toSql());echo '</pre>';die('developer is working');
+            echo '<pre>';print_r($rows);echo '</pre>';die('developer is working');
             
             $response = array(
             'status' => 'success',
