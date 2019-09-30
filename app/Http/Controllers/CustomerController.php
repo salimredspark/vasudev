@@ -350,10 +350,11 @@ class CustomerController extends Controller{
             $table = DB::collection('customers');
             $qbp = new QueryBuilderParser( array( 'tag_name' ) );
 
-            $query = $qbp->parse(json_encode($request['querybuilder']), $table); 
-                                    
+            $query = $qbp->parse(json_encode($request['querybuilder']), $table);
             $rows = $query->get();
-
+            
+            //echo '<pre>';print_r($query->toSql());echo '</pre>';die('developer is working');
+            
             $response = array(
             'status' => 'success',
             'counts' => count($rows),
@@ -377,6 +378,9 @@ class CustomerController extends Controller{
         $qbp = new QueryBuilderParser( array( 'tag_name', 'Number', 'SenderId' ) );
         $json = preg_replace("!\r?\n!", "", $request->querybuilder);
         $query = $qbp->parse($json, $table);        
+        
+        //echo '<pre>';print_r($query->toSql());echo '</pre>';die('developer is working');
+        
 
         $rows = [];
         if($limitType == 'all'){

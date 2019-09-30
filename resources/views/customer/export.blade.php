@@ -117,7 +117,6 @@
                 //operators: ['equal', 'not_equal', 'in', 'not_in', 'contains']
                 operators: ['contains', 'not_contains'] //,'begins_with','not_begins_with','ends_with','not_ends_with'
             }]
-
         });
 
         // set rules
