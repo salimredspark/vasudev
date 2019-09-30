@@ -199,6 +199,6 @@
         $("#selectAll").click(function () {
             $(".checkBoxClass").prop('checked', $(this).prop('checked'));
         });
-    });
+    });    
 </script>
 @endsection
