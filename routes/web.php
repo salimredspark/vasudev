@@ -60,10 +60,13 @@ Route::post('customer/saveAssignTagsInBulk', 'customerController@saveAssignTagsI
 
 #import and export customers
 Route::get('customer/import', 'customerController@import')->name('customer-import');
-Route::post('customer/saveImport', 'customerController@saveImport')->name('customer-saveImport');
+Route::post('customer/importprocess', 'customerController@importprocess')->name('customer-import-process');
+Route::post('customer/saveImport', 'customerController@saveImport')->name('customer-saveImport');  
+
 Route::get('customer/export', 'customerController@export')->name('customer-export');
 Route::post('customer/exportQueryCounts', 'customerController@exportQueryCounts')->name('customer-exportcounts');
 Route::post('customer/exportall', 'customerController@exportall')->name('customer-exportall');
+
 
 #manage import log 
 Route::get('import', 'importController@index')->name('import-list');

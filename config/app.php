@@ -226,5 +226,10 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,        
     ],
-
+    
+    'db_fields' => [
+      'first_name',
+      'last_name',
+       'email'
+    ],
 ];

@@ -75,8 +75,8 @@
                                             <div class="section-tool">
                                                 <h5>Select Columns | <input type="checkbox" checked="checked" name="selectAll" id="selectAll"> Select All</h5>
                                                 <div class="row">
-                                                    @forelse ($columns as $column)
-                                                    <div class="col-sm-3"><input type="checkbox" class="checkBoxClass" checked="checked" name="fields[]" value="{{ $column }}">  {{ $column }}</div>
+                                                    @forelse ($columns as $k => $column)
+                                                    <div class="col-sm-3"><input type="checkbox" class="checkBoxClass" checked="checked" name="fields[]" value="{{$k}}"> {{ $column }}</div>
                                                     @empty
                                                     <p>No Columns</p>
                                                     @endforelse

@@ -20,7 +20,7 @@
 
                     <div class="content">
 
-                        <form action="{{ route('customer-saveImport') }}" method="POST" accept-charset="UTF-8" enctype="multipart/form-data">
+                        <form action="{{ route('customer-import-process') }}" method="POST" accept-charset="UTF-8" enctype="multipart/form-data">
                             {!! csrf_field() !!}
 
                             <div class="form-group">

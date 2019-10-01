@@ -131,6 +131,8 @@ class CustomerController extends Controller{
 
             $customers = Customers::where('tag_name', 'LIKE', "%{$search}%")
             ->orWhere('Number', 'LIKE', "%{$search}%")->orderBy('created_at', 'DESC')->get()->toArray();
+
+            #$customers = DB::table('customers')->whereRaw("FIND_IN_SET('$search', tag_name)")->get()->toArray();            
             $recordsTotal = count( $customers );
         }else{        
             $recordsTotal = count( Customers::all()->toArray() );
@@ -185,6 +187,28 @@ class CustomerController extends Controller{
     public function import(Request $request){
         $companies = Companies::all()->sortBy("company_name");       
         return view('customer.import', ["companies"=>$companies]); 
+    }
+
+    //upload file and ready for mapping
+    public function importprocess(Request $request){
+        $file = $request->file('upload_file');
+
+        $validator = $request->validate([
+        'upload_file' => 'required|file'        
+        ]);       
+
+        Log::channel('csvimportlog')->info('Customer CSV file loaded!!');
+
+        $filename = $file->getClientOriginalName();                
+        $extension = $file->getClientOriginalExtension();
+        $fileTmpPath = $file->getRealPath();
+        $fileSize = $file->getSize();
+        $fileMimeType = $file->getMimeType();
+
+        $path = $fileTmpPath;
+        $data = array_map('str_getcsv', file($path));
+        $csv_data = array_slice($data, 0, 2);
+        return view('customer.import_fields', compact('csv_data'));
     }
 
     //save import customers
@@ -313,7 +337,7 @@ class CustomerController extends Controller{
     public function export(Request $request){
         $customer =  Customers::all()->first();      
 
-        $skipColumns = array('_id', 'created_at', 'updated_at');
+        $skipColumns = array('_id', 'created_at', 'updated_at', 'updated_by');
         $columns = array_keys($customer->getAttributes()); 
         foreach($skipColumns as $kk) {
             $indexCompleted = array_search($kk, $columns);            
@@ -321,10 +345,12 @@ class CustomerController extends Controller{
         }
 
         //replace lable
-        $replacements = array('company_id' => 'company_name');
-        foreach ($columns as $key => $value) {
+        $replacements = array('company_id' => 'getcompanies.company_name', 'created_by' => 'getcreated.name');
+        foreach ($columns as $key => $value) {            
             if (isset($replacements[$value])) {
-                $columns[$key] = $replacements[$value];
+                $replaceColumns[$replacements[$value]] = ucwords(str_replace("_"," ",str_replace("company_id","company_name",$value)));
+            }else{            
+                $replaceColumns[$value] = ucwords(str_replace("_"," ",$value));
             }
         }        
 
@@ -338,7 +364,7 @@ class CustomerController extends Controller{
             }
         }
 
-        return view('customer.export', [ "columns"=> $columns, 'jsTags' => json_encode($returnTagsArr) ] );
+        return view('customer.export', [ "columns"=> $replaceColumns, 'jsTags' => json_encode($returnTagsArr) ] );
     }
 
     //get export query records counts
@@ -352,9 +378,9 @@ class CustomerController extends Controller{
 
             $query = $qbp->parse(json_encode($request['querybuilder']), $table);
             $rows = $query->get()->toArray(); //already including $query get()
-            
+
             #echo '<pre>';print_r($rows);echo '</pre>';die('developer is working');
-            
+
             $response = array(
             'status' => 'success',
             'counts' => count($rows),
@@ -370,7 +396,6 @@ class CustomerController extends Controller{
         $limitType = $request->setLimitType;
         $iseSelectAll = $request->selectAll;//is selected all if yes "on"
         $fields = $request->input('fields'); 
-        
         //Ref: QueryBuilderParser | https://github.com/timgws/QueryBuilderParser
 
         //non join query         
@@ -378,7 +403,7 @@ class CustomerController extends Controller{
         $qbp = new QueryBuilderParser( array( 'tag_name', 'Number', 'SenderId' ) );
         $json = preg_replace("!\r?\n!", "", $request->querybuilder);
         $query = $qbp->parse($json, $table);
-        
+
         $rows = [];
         if($limitType == 'all'){
             $rows = $query->offset(0)->limit($limit)->get();
@@ -389,7 +414,7 @@ class CustomerController extends Controller{
         if($limitType == 'random'){
             $rows = $query->offset(0)->limit($limit)->orderBy("RAND()")->get(); 
         }
-                   
+
         $csvExporter = new \Laracsv\Export();
         $filename = 'export_customers_'.date('dMY').'_'.md5(rand(111,999)).'.csv';
         $csvExporter->build($rows,  $fields)->download($filename);                                      
