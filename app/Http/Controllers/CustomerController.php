@@ -191,41 +191,10 @@ class CustomerController extends Controller{
 
     //upload file and ready for mapping
     public function importprocess(Request $request){
-        $file = $request->file('upload_file');
-
-        $validator = $request->validate([
-        'upload_file' => 'required|file'        
-        ]);       
-
-        Log::channel('csvimportlog')->info('Customer CSV file loaded!!');
-
-        $filename = $file->getClientOriginalName();                
-        $extension = $file->getClientOriginalExtension();
-        $fileTmpPath = $file->getRealPath();
-        $fileSize = $file->getSize();
-        $fileMimeType = $file->getMimeType();
-
-        $path = $fileTmpPath;
-        $data = array_map('str_getcsv', file($path));
-        $csv_data = array_slice($data, 0, 2);
-        return view('customer.import_fields', compact('csv_data'));
-    }
-
-    //save import customers
-    public function saveImport(Request $request){
-        $file = $request->file('upload_file');
 
         $validator = $request->validate([
         'upload_file' => 'required'        
-        ]);       
-
-        Log::channel('csvimportlog')->info('Customer CSV file loaded!!');
-
-        $filename = $file->getClientOriginalName();                
-        $extension = $file->getClientOriginalExtension();
-        $fileTmpPath = $file->getRealPath();
-        $fileSize = $file->getSize();
-        $fileMimeType = $file->getMimeType(); 
+        ]);
 
         // Valid File Extensions
         $valid_extension = array("csv");
@@ -233,103 +202,146 @@ class CustomerController extends Controller{
         // 2MB in Bytes
         $maxFileSize = 9097152;
 
-        if(in_array(strtolower($extension),$valid_extension))
-        {
-            $existCompanyTags = [];
+        //file information
+        $file = $request->file('upload_file');
+        $filename = $file->getClientOriginalName();                
+        $extension = $file->getClientOriginalExtension();
+        $fileTmpPath = $file->getRealPath();
+        $fileSize = $file->getSize();
+        $fileMimeType = $file->getMimeType();
 
-            //Move Uploaded File          
-            $location = 'uploads'; //public/uploads
-            $file->move($location, $filename);
-            Log::channel('csvimportlog')->info('CSV file move to server!!');
-            $filepath = public_path($location."/".$filename);
+        if(in_array(strtolower($extension), $valid_extension))
+        {                   
+            $data = array_map('str_getcsv', file($fileTmpPath));
+            if (count($data) > 0) 
+            {
+                //first row as header            
+                $csv_data = array_slice($data, 0, 2);
 
-            $company_name = '';            
+                $companyInfo = new Companies;
+                if($request->company_id){
+                    $companyInfo = Companies::find($request->company_id);
+                }                        
+
+                //Move Uploaded File
+                $location = 'uploads'; //public/uploads
+                $file->move($location, $filename);            
+                $filepath = public_path($location."/".$filename);
+
+                //get company detail
+                $company_id = '';
+                $company_name = '';            
+                if($request->company_id){
+                    $company_id = $request->company_id;                
+                    $companyObj = Companies::find($company_id);                                                            
+                    $company_name = $companyObj->company_name;
+                }
+
+                //save to database for log
+                $saveUpload = new Import($request->all());                    
+                $saveUpload->file_name = $filename;
+                $saveUpload->file_path = $location;
+                $saveUpload->import_type = "customer";
+                $saveUpload->csv_data = json_encode($data);
+                $saveUpload->company_name = $company_name;
+                $saveUpload->created_at = strtotime(date('Y-m-d h:i:s'));
+                $saveUpload->created_by = Auth::user()->id;
+                $saveUpload->save();
+
+                $csv_data_file_id = $saveUpload->_id;
+                $x_tag_name = $request->tag_name;
+
+                $request->session()->flash('success','CSV file uploaded and ready to field mapping.'); 
+                return view('customer.import_fields', compact( 'csv_data', 'csv_data_file', 'company_id', 'company_name', 'x_tag_name', 'csv_data_file_id'));        
+
+            } else {
+                $request->session()->flash('error','No Records in customer CSV file!');    
+                return redirect()->back();
+            }            
+        }else{
+            $request->session()->flash('success','Invalid customer CSV file!');    
+            return redirect()->back();
+        }
+    }
+
+    //save import customers
+    public function saveimportprocess(Request $request){
+
+        $data = Import::find($request->csv_data_file_id);
+        $csv_data = json_decode($data->csv_data, true);
+
+        //save company if selected
+        $company_name = ''; 
+        $existCompanyTags = $alreadyAssignedCompanyIds = [];            
+
+        //external customer tags
+        $externalTags = str_replace("#","",trim($request->x_tag_name));
+        $externalTags = array_filter(explode(",",$externalTags));
+
+        $isFirstRow = true;
+        foreach ($csv_data as $row) 
+        {       
+            if ($isFirstRow){
+                $isFirstRow = false; 
+                continue;
+            }
+
+            //ready customer object
+            $arr1 = $arr2 = [];            
+            $Number = $row[$request->fields['Number']]; 
+
+            $customerObj = Customers::where([['Number', '=', $Number]])->first();            
+            if($customerObj){          
+                $existTags = $customerObj->tag_name; //already saved tags in customer                                
+                $arr1 = array_filter(explode(",",$existTags));                    
+                $alreadyAssignedCompanyIds = array_filter(explode(",",$customerObj->company_id));                    
+            }
+            else
+            {
+                $customerObj = new Customers();                    
+                $customerObj->created_at = strtotime(date('Y-m-d h:i:s'));
+                $customerObj->created_by = Auth::user()->id;
+            }
+
+            //customer tags
+            $SenderId = $row[$request->fields['SenderId']];
+            $RealEstateSupplier = $row[$request->fields['Real Estate Supplier']];
+            $csvImportTags = trim($SenderId).','.trim($RealEstateSupplier); //getting from csv            
+
+            $arr2 = array_filter(explode(",",$csvImportTags));
+            $finalTags = implode(",",array_unique(array_merge($arr1, $arr2, $externalTags)));               
+
+            $customerObj->company_id = implode(",",$alreadyAssignedCompanyIds);
+            $customerObj->tag_name = $finalTags;
+            $customerObj->updated_at = strtotime(date('Y-m-d h:i:s'));                
+            $customerObj->updated_by = Auth::user()->id;
+
+            //merge other fileds
+            foreach (config('app.db_fields') as $index => $field) {
+                $customerObj->$field = $row[$request->fields[$field]];                                                
+            }
+
+            $customerObj->save();
+
+            //save company
             if($request->company_id)
             {
                 $company_id = $request->company_id;                
                 $companyObj = Companies::find($company_id);                                        
                 $existCompanyTags = explode(",", $companyObj->tag_name);                
-                $company_name = $companyObj->company_name;
+                $existCustomerTags = explode(",", $finalTags);                
+                
+                $finalTags = implode(",",array_unique(array_merge($existCustomerTags, $existCompanyTags)));
+                
+                $companyObj->tag_name = $finalTags;
+                $companyObj->save();
+
+                if(!in_array($company_id, $alreadyAssignedCompanyIds)){
+                    $alreadyAssignedCompanyIds[]=$company_id;
+                }
             }
-
-            //save to database for log
-            $saveUpload = new Import($request->all());                    
-            $saveUpload->file_name = $filename;
-            $saveUpload->file_path = $location;
-            $saveUpload->import_type = "customer";
-            $saveUpload->company_name = $company_name;
-            $saveUpload->created_at = strtotime(date('Y-m-d h:i:s'));
-            $saveUpload->created_by = Auth::user()->id;
-            $saveUpload->save(); 
-            Log::channel('csvimportlog')->info('CSV file save to database!!');
-
-            //import after upload csv
-            $file = public_path($location.DIRECTORY_SEPARATOR.$filename);
-
-            //external customer tags
-            $externalTags = str_replace("#","",trim($request->tag_name));
-            $externalTags = array_filter(explode(",",$externalTags));
-
-            Log::channel('csvimportlog')->info('Start CSV file ready to read!!');
-
-            $alreadyAssignedCompanyIds = [];
-            $customerArr = $this->csvToArray($file);
-            foreach($customerArr as $column => $value)
-            {
-                if(empty(trim($value['Number']))) continue;
-
-                $arr1 = $arr2 = [];            
-                $customerObj = Customers::where([['Number', '=', $value['Number']]])->first();            
-                if($customerObj){          
-                    $existTags = $customerObj->tag_name; //already saved tags in customer                                
-                    $arr1 = array_filter(explode(",",$existTags));
-                    Log::channel('csvimportlog')->info('Update Number '.$customerObj->number);                
-
-                    $alreadyAssignedCompanyIds = array_filter(explode(",",$customerObj->company_id));                    
-                }
-                else{
-                    $customerObj = new Customers();
-                    Log::channel('csvimportlog')->info('New Number '.$value['Number']);                
-                    $customerObj->created_at = strtotime(date('Y-m-d h:i:s'));
-                    $customerObj->created_by = Auth::user()->id;
-                }
-
-                //customer tags
-                $csvImportTags = trim($value['SenderId']).','.trim($value['Real Estate Supplier']); //getting from csv            
-                $arr2 = array_filter(explode(",",$csvImportTags));
-                $finalTags = implode(",",array_unique(array_merge($arr1, $arr2, $externalTags, $existCompanyTags)));
-
-                //save company if selected
-                if($request->company_id){
-                    $companyObj->tag_name = $finalTags;
-                    $companyObj->save();
-
-                    if(!in_array($company_id, $alreadyAssignedCompanyIds)){
-                        $alreadyAssignedCompanyIds[]=$company_id;
-                    }
-                }
-
-                $customerObj->company_id = implode(",",$alreadyAssignedCompanyIds);
-                $customerObj->tag_name = $finalTags;
-                $customerObj->updated_at = strtotime(date('Y-m-d h:i:s'));                
-                $customerObj->updated_by = Auth::user()->id;
-
-                $array_columns = array_keys($value);                
-                foreach($array_columns as $key){                    
-                    $customerObj->$key = str_replace(" ","_",$value[$key]);
-                } 
-                $customerObj->save(); 
-
-                Log::channel('csvimportlog')->info('Saved Customer '.$customerObj->number);
-            }
-
-            Log::channel('csvimportlog')->info('Stop CSV file read!!');
-
-            $request->session()->flash('success','Customer CSV import successfully!');
         }
-        else{
-            $request->session()->flash('success','Invalid customer CSV file!');    
-        }
+
         return redirect()->route('customer-list');
     }
 

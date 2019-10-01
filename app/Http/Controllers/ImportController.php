@@ -48,12 +48,12 @@ class ImportController extends Controller{
             $search = $request->search['value'];                        
 
             $importLog = Import::where('filename', 'LIKE', "%{$search}%")
-            ->orWhere('import_type', 'LIKE', "%{$search}%")->get()->toArray();
+            ->orWhere('import_type', 'LIKE', "%{$search}%")->orderBy('created_at', 'DESC')->get()->toArray();
 
             $recordsTotal = count( $importLog );
         }else{        
             $recordsTotal = count( Import::all()->toArray() );
-            $importLog = Import::offset($start)->limit($limit)->get()->toArray();
+            $importLog = Import::offset($start)->limit($limit)->orderBy('created_at', 'DESC')->get()->toArray();
         }
 
         $importLogArr = [];

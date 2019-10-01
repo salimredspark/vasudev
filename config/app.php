@@ -228,8 +228,12 @@ return [
     ],
     
     'db_fields' => [
-      'first_name',
-      'last_name',
-       'email'
+      'SenderId',
+      'Number',
+      'First Name',
+      'Last Name',
+      'Address',
+      'City',
+      'Real Estate Supplier',
     ],
 ];

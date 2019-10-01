@@ -41,15 +41,31 @@
                                 </select>
                             </div>
 
-                            <div class="form-group">
+                            <div class="form-group{{ $errors->has('upload_file') ? ' has-error' : '' }}">
                                 <label for="upload_file">Select File</label>
                                 <input type="file" class="" id="upload_file" name="upload_file">
+                                
+                                @if ($errors->has('upload_file'))
+                                <span class="help-block">
+                                    <strong>{{ $errors->first('upload_file') }}</strong>
+                                </span>
+                                @endif
                             </div>
 
                             <div class="form-group">
                                 <label for="exampleInputEmail1">Tags</label>                                
                                 <textarea class="form-control" id="tag_name" name="tag_name" rows="3" aria-describedby="tagsHelp"></textarea>
                                 <small id="tagsHelp" class="form-text text-muted">external tags like vasudev,2019,pizza (comma separate).</small>
+                            </div>
+
+                            <div class="form-group" style="display: none;">
+                                <div class="col-md-6 col-md-offset-4">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" name="header"> File contains header row?
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
 
                             <button type="submit" class="btn btn-primary" name="btn_save_upload">Save</button>

@@ -12,10 +12,11 @@
             <div class="card">
                 <div class="card-header">
                     <div class="row">
-                        <div class="col-sm-8">Export Customers</div>
-                        <div class="col-sm-4">
+                        <div class="col-sm-4">Import Customers</div>
+                        <div class="col-sm-8">
                             <div class="card-header-right text-right">
-                                <a href="javascript://" class="btn btn-success exportall">Export</a>
+                                <a href="javascript://" class="btn btn-success exportall">Import Customers for {{ $company_name }} </a>
+                                <a href="{{ route('customer-import') }}" class="btn btn-danger btn-back">Back</a>
                             </div>
                         </div>
                     </div>
@@ -37,23 +38,34 @@
 
                             <div id="container" class="container search-template">
                                 <div id="content">                                                                        
-                                    <form class="form-horizontal" method="POST" action="{{ route('customer-saveImport') }}">
+                                    <form class="form-horizontal" method="POST" action="{{ route('customer-saveimportprocess') }}">
                                         {{ csrf_field() }}
+                                        <input type="hidden" name="csv_data_file_id" value="{{ $csv_data_file_id }}">
+                                        <input type="hidden" name="company_id" value="{{ $company_id }}">
+                                        <input type="hidden" name="x_tag_name" value="{{ $x_tag_name }}">
 
                                         <table class="table">
-                                            @foreach ($csv_data as $row)
-                                            <tr>
-                                                @foreach ($row as $key => $value)
-                                                <td>{{ $value }}</td>
-                                                @endforeach
+                                            <tr>                                                
+                                                @foreach (config('app.db_fields') as $db_field)
+                                                <td>{{ $db_field }}</td>
+                                                @endforeach                                                 
                                             </tr>
+
+                                            @foreach (config('app.db_fields') as $db_field)
+                                            <td>
+                                                <div class="form-group">
+                                                    <select name="fields[{{$db_field}}]" class="form-control">                                                    
+                                                        <option value="">select</option>
+                                                        @foreach ($csv_data[0] as $key => $value)
+                                                        <option value="{{ $loop->index }}">{{ $value }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            </td>
                                             @endforeach
-                                            
                                         </table>
 
-                                        <button type="submit" class="btn btn-primary">
-                                            Import Data
-                                        </button>
+                                        <button type="submit" class="btn btn-primary">Import Data</button>
                                     </form>
                                 </div>
                             </div>
@@ -68,7 +80,7 @@
 
 <script type="text/javascript">     
     $(document).ready(function() {                                    
-        
+
     });    
 </script>
 @endsection
