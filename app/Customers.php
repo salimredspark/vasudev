@@ -25,11 +25,11 @@ class Customers extends Eloquent {
 
     public function getcompanies() 
     {
-        return $this->hasOne(Companies::class, '_id.toString()', 'company_id.toString()')->select(['company_name']);
+        return $this->hasMany(Companies::class, '_id.toString()', 'company_id.toString()')->select(['company_name']);
     }
     
     public function getcreated() 
     {
-        return $this->hasOne(User::class, '_id.toString()', 'created_by.toString()')->select(['name']);                
+        return $this->hasMany(User::class, '_id.toString()', 'created_by.toString()')->select(['name']);                
     }        
 }
