@@ -15,6 +15,7 @@ use DB;
 use timgws\QueryBuilderParser;
 use timgws\JoinSupportingQueryBuilderParser;
 use Illuminate\Support\Facades\Input;
+use Config;
 
 class CustomerController extends Controller{
 
@@ -216,8 +217,20 @@ class CustomerController extends Controller{
             if (count($data) > 0) 
             {
                 //first row as header            
-                $csv_data = array_slice($data, 0, 2);
-
+                $csv_header_data = array_slice($data, 0, 1); //get first header row
+                $csv_header_data = $csv_header_data[0];
+                $csv_data = array_slice($data, 0, 2); //first 3 column excluding header 0 row
+                $csv_data_print = array_slice($data, 1, 3); //first 3 column excluding header 0 row
+                $configFields = Config::get('app.db_fields');
+                                
+                $print_csv_data = [];             
+                foreach($csv_data_print as $datakey => $csvD){                                        
+                    foreach($configFields as $filedkey => $v){                    
+                        $searchkey = array_search ($v, $csv_header_data);
+                        $print_csv_data[$datakey][$v] = ($searchkey) ? $csvD[$searchkey] : '--';
+                    }                    
+                }
+                                                
                 $companyInfo = new Companies;
                 if($request->company_id){
                     $companyInfo = Companies::find($request->company_id);
@@ -252,7 +265,7 @@ class CustomerController extends Controller{
                 $x_tag_name = $request->tag_name;
 
                 $request->session()->flash('success','CSV file uploaded and ready to field mapping.'); 
-                return view('customer.import_fields', compact( 'csv_data', 'csv_data_file', 'company_id', 'company_name', 'x_tag_name', 'csv_data_file_id'));        
+                return view('customer.import_fields', compact( 'csv_data', 'company_id', 'company_name', 'filename', 'x_tag_name', 'csv_data_file_id', 'print_csv_data'));        
 
             } else {
                 $request->session()->flash('error','No Records in customer CSV file!');    
@@ -330,9 +343,9 @@ class CustomerController extends Controller{
                 $companyObj = Companies::find($company_id);                                        
                 $existCompanyTags = explode(",", $companyObj->tag_name);                
                 $existCustomerTags = explode(",", $finalTags);                
-                
+
                 $finalTags = implode(",",array_unique(array_merge($existCustomerTags, $existCompanyTags)));
-                
+
                 $companyObj->tag_name = $finalTags;
                 $companyObj->save();
 

@@ -12,10 +12,12 @@
             <div class="card">
                 <div class="card-header">
                     <div class="row">
-                        <div class="col-sm-4">Import Customers</div>
-                        <div class="col-sm-8">
-                            <div class="card-header-right text-right">
-                                <a href="javascript://" class="btn btn-success exportall">Import Customers for {{ $company_name }} </a>
+                        <div class="col-sm-9">Import Customers<br />
+                            Company: {{ $company_name }}<br />
+                            Filename: {{ $filename }}
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="card-header-right text-right">                                
                                 <a href="{{ route('customer-import') }}" class="btn btn-danger btn-back">Back</a>
                             </div>
                         </div>
@@ -38,38 +40,55 @@
 
                             <div id="container" class="container search-template">
                                 <div id="content">                                                                        
-                                    <form class="form-horizontal" method="POST" action="{{ route('customer-saveimportprocess') }}">
+                                    <form class="form-horizontal frm_saveimportprocess" method="POST" action="{{ route('customer-saveimportprocess') }}">
                                         {{ csrf_field() }}
                                         <input type="hidden" name="csv_data_file_id" value="{{ $csv_data_file_id }}">
                                         <input type="hidden" name="company_id" value="{{ $company_id }}">
                                         <input type="hidden" name="x_tag_name" value="{{ $x_tag_name }}">
 
                                         <table class="table">
-                                            <tr>                                                
+                                            <tr style="background-color: #eee;">
                                                 @foreach (config('app.db_fields') as $db_field)
                                                 <td>{{ $db_field }}</td>
                                                 @endforeach                                                 
                                             </tr>
 
-                                            @foreach (config('app.db_fields') as $db_field)
-                                            <td>
-                                                <div class="form-group">
-                                                    <select name="fields[{{$db_field}}]" class="form-control">                                                    
-                                                        <option value="">select</option>
-                                                        @foreach ($csv_data[0] as $key => $value)
-                                                        <option value="{{ $loop->index }}">{{ $value }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </td>
+                                            @foreach ($print_csv_data as $col => $rows)
+                                            <tr>
+                                                @foreach (config('app.db_fields') as $db_field)
+                                                <td>{{ $rows[$db_field] }}</td>
+                                                @endforeach
+                                            </tr>
                                             @endforeach
+
+                                            <tr style="background-color: #eee;">
+                                                @foreach (config('app.db_fields') as $db_field)
+                                                <td>
+                                                    <div class="form-group">
+                                                        <select name="fields[{{$db_field}}]" class="form-control sel_fields" attr="{{$db_field}}">                                                    
+                                                            <option value="">select</option>
+                                                            @foreach ($csv_data[0] as $key => $value)
+                                                            <option value="{{ $loop->index }}">{{ $value }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                @endforeach
+                                            </tr>
                                         </table>
 
-                                        <button type="submit" class="btn btn-primary">Import Data</button>
+                                        <div class="row">
+                                            <div class="col-sm-9">&nbsp;</div>
+                                            <div class="col-sm-3">
+                                                <div class="card-header-right text-right">                                
+                                                    <button type="button" class="btn_saveimportprocess btn btn-primary">Import Data</button>
+                                                </div>
+                                            </div>
+                                        </div>                                        
+
                                     </form>
                                 </div>
-                            </div>
-
+                            </div> 
                         </div>
                     </div>
                 </div>    
@@ -80,7 +99,23 @@
 
 <script type="text/javascript">     
     $(document).ready(function() {                                    
+        $(".btn_saveimportprocess").on('click', function() {            
 
+            var isSubmit = true;
+
+            $( ".sel_fields" ).each(function( index ) {
+                if($(this).val() == '') {
+                    isSubmit = false;
+                    alert("Please select filed "+ $(this).attr("attr") + ".");                                        
+                    $(this).focus();                    
+                    return false;
+                }
+            });
+
+            if(isSubmit){
+                $(".frm_saveimportprocess").submit();
+            }
+        });
     });    
 </script>
 @endsection

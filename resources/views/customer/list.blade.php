@@ -11,7 +11,7 @@
                         <div class="col-sm-6">
                             <div class="card-header-right text-right">
                                 <a href="{{ route('customer-create') }}" class="btn btn-sm btn-success">Create New</a>
-                                <a href="{{ route('customer-import') }}" class="btn btn-sm btn-success">Import</a>
+                                <a href="{{ route('customer-import') }}" class="btn btn-sm btn-success">Import Customers</a>
                                 <a href="{{ route('customer-export') }}" class="btn btn-sm btn-success">Export with Query</a>
                                 <a href="javascript://" class="btn btn-sm btn-danger deleteall" onclick="deleteAll()" >Delete All</a>
                             </div>
