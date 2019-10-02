@@ -14,6 +14,7 @@ Site Ref: https://www.vasudev.com
 
 ## Vasudev Website Requirements
 
+ - PHP Version 7.2.10 | Ref: https://www.php.net
  - Laravel Version 5.8.35 | Ref: https://laravel.com/docs/5.8
  - MongoDB Version 3.2.22 for Database | Database hosted on mlab | Ref: https://mlab.com
  - Laravel + MongoDB Database Connection Module | Ref: https://github.com/jenssegers/laravel-mongodb
