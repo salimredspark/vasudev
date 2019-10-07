@@ -106,8 +106,8 @@ https://medium.com/@LondonAppBrewery/how-to-download-install-mongodb-on-windows-
 
 2) Install MSI Setup
 
-3) Configure local credantials into Database file in Laravel .env
+3) Configure local database credentials into Database file in Laravel .env
 
-3) php artisan migrate:refresh
+3) run laravel migrate command in to CMD php artisan migrate:refresh
 ---------------------------------------------------------------------------------------------------------------------------------------------
 
