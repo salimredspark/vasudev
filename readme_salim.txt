@@ -97,9 +97,17 @@ For other excel file, please use City, Pin Code, Locality, Level1, Level2 and Le
 Assign Tag
 1) Change selection of company like Tags page.
 2) Query Builder for Customer
+---------------------------------------------------------------------------------------------------------------------------------------------
 
+Setup MongoDB in Local
 
-composer require timgws/query-builder-parser ^1.5.1
+1) Download MongoDB and Laravel configure
+https://medium.com/@LondonAppBrewery/how-to-download-install-mongodb-on-windows-4ee4b3493514
 
-ravsupjy,alibaba,dominos,ice cream,pizza,food lover,hni,newtag,dvsupjy,google,newdsp,premium,india
+2) Install MSI Setup
+
+3) Configure local credantials into Database file in Laravel .env
+
+3) php artisan migrate:refresh
+---------------------------------------------------------------------------------------------------------------------------------------------
 
