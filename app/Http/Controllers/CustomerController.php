@@ -404,7 +404,7 @@ class CustomerController extends Controller{
             $table = DB::collection('customers');
             $qbp = new QueryBuilderParser( array( 'tag_name' ) );
 
-            $query = $qbp->parse(json_encode($request['querybuilder']), $table);                     
+            $query = $qbp->parse(strtolower(json_encode($request['querybuilder'])), $table);
             $rows = $query->get()->toArray();
             
             $response = array(
@@ -427,8 +427,13 @@ class CustomerController extends Controller{
         //non join query         
         $table = DB::collection('customers');
         $qbp = new QueryBuilderParser( array( 'tag_name' ) );
-        $json = preg_replace("!\r?\n!", "", $request->querybuilder);
-        $query = $qbp->parse($json, $table);
+        #$qbp = new JoinSupportingQueryBuilderParser( array('tag_name' ), array( 'company_id' => 'companies._id' ) );
+        $json = strtolower(preg_replace("!\r?\n!", "", $request->querybuilder));
+        $query = $qbp->parse($json, $table);        
+                    
+        //$query->withEloquent('getcompanies'); //getcompanies relation ship in customer model
+        //$query->withEloquent('getcreated');  //getcreated relation ship in customer model        
+    
 
         $rows = [];
         if($limitType == 'all'){

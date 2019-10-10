@@ -52,7 +52,7 @@ $app->singleton(
 |
 */
 
-#$app->register(Jenssegers\Mongodb\MongodbServiceProvider::class);
-#$app->withEloquent();
+//$app->register(Jenssegers\Mongodb\MongodbServiceProvider::class);
+//$app->withEloquent();
 
 return $app;
