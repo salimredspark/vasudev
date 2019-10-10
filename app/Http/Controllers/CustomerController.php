@@ -132,7 +132,10 @@ class CustomerController extends Controller{
 
             $customers = Customers::where('tag_name', 'LIKE', "%{$search}%")
             ->orWhere('Number', 'LIKE', "%{$search}%")->orderBy('created_at', 'DESC')->get()->toArray();
-
+            
+           // $customers = Customers::where('tag_name', 'regexp', "/{$search}.*/")
+           // ->orWhere('Number', 'regexp', "/{$search}.*/")->orderBy('created_at', 'DESC')->get()->toArray();
+             //echo $customers->toSql();die;
             #$customers = DB::table('customers')->whereRaw("FIND_IN_SET('$search', tag_name)")->get()->toArray();            
             $recordsTotal = count( $customers );
         }else{        
@@ -397,11 +400,24 @@ class CustomerController extends Controller{
 
         $response = array();
         if(!empty($request['querybuilder']))
-        {                            
+        {                      
+        //$rr = DB::select(DB::raw("select * from customers where tag_name LIKE '%spark10%' or tag_name NOT LIKE '%demo19%'"));
+        //$rr = DB::table("customers")->where("select * from customers where tag_name LIKE '%spark10%' or tag_name NOT LIKE '%demo19%'");
+        //$rr = DB::table("customers")->where("select * from customers where tag_name LIKE '%spark10%' or tag_name NOT LIKE '%demo19%'");
+        //$rr = DB::table("customers")->where('tag_name', 'like', '%spark10%')->orWhere('tag_name', 'NOT LIKE', '%demo19%');
+        //$rr = DB::table("customers")->where('tag_name', 'NOT LIKE', '%spark10%');//->orWhere('tag_name', 'NOT LIKE', '%demo19%');
+        //$rr = DB::table("customers")->where('tag_name', 'not regexp', '/^.*spark10.*/');//->orWhere('tag_name', 'NOT LIKE', '%demo19%');
+        //echo '<pre>';print_r($rr->get()->toArray());echo '</pre>';die('developer is working');
+        
+              
             $table = DB::collection('customers');
             $qbp = new QueryBuilderParser( array( 'tag_name' ) );
 
             $query = $qbp->parse(json_encode($request['querybuilder']), $table);
+            //echo '<pre>';print_r($query->toSql());echo '</pre>';die('developer is working');
+                      //echo '<pre>';print_r($query->toSql());echo '</pre>';
+                     // echo '<pre>';print_r($query->getBindings());echo '</pre>';die('developer is working');
+                      
             $rows = $query->get()->toArray(); //already including $query get()
 
             #echo '<pre>';print_r($rows);echo '</pre>';die('developer is working');
@@ -425,7 +441,7 @@ class CustomerController extends Controller{
 
         //non join query         
         $table = DB::collection('customers');
-        $qbp = new QueryBuilderParser( array( 'tag_name', 'Number', 'SenderId' ) );
+        $qbp = new QueryBuilderParser( array( 'tag_name' ) );
         $json = preg_replace("!\r?\n!", "", $request->querybuilder);
         $query = $qbp->parse($json, $table);
 
