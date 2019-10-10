@@ -206,7 +206,7 @@ class CompaniesController extends Controller{
         $file = public_path('uploads'.DIRECTORY_SEPARATOR.$fileName);
         $customerArr = $this->csvToArray($file);
 
-        $externalTags = str_replace("#","",trim($request->tag_name));
+        $externalTags = strtolower(str_replace("#","",trim($request->tag_name)));
         $externalTags = array_filter(explode(",",$externalTags));
 
         Log::channel('csvimportlog')->info('Start CSV file ready to read!!');
@@ -233,10 +233,10 @@ class CompaniesController extends Controller{
             //tags
             $csvImportTags = trim($value['city']).','.trim($value['pincode']).','.trim($value['locality']).',';
             $csvImportTags .= trim($value['level1']).','.trim($value['level2']).','.trim($value['level3']);
-            $arr2 = array_filter(explode(",",$csvImportTags));
+            $arr2 = array_filter(explode(",",strtolower($csvImportTags)));
             $finalTags = implode(",",array_unique(array_merge($arr1, $arr2, $externalTags)));
 
-            $company->tag_name = $finalTags;
+            $company->tag_name = strtolower($finalTags);
 
             $array_columns = array_keys($value);
             foreach($array_columns as $key){           

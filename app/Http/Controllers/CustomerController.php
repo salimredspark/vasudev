@@ -128,7 +128,7 @@ class CustomerController extends Controller{
         $start=intval($request->start);
 
         if(!empty($request->search['value'])){
-            $search = $request->search['value'];                        
+            $search = strtolower($request->search['value']);
 
             $customers = Customers::where('tag_name', 'LIKE', "%{$search}%")
             ->orWhere('Number', 'LIKE', "%{$search}%")->orderBy('created_at', 'DESC')->get()->toArray();
@@ -291,7 +291,7 @@ class CustomerController extends Controller{
         $existCompanyTags = $alreadyAssignedCompanyIds = [];            
 
         //external customer tags
-        $externalTags = str_replace("#","",trim($request->x_tag_name));
+        $externalTags = strtolower(str_replace("#","",trim($request->x_tag_name)));
         $externalTags = array_filter(explode(",",$externalTags));
 
         $isFirstRow = true;
@@ -322,13 +322,13 @@ class CustomerController extends Controller{
             //customer tags
             $SenderId = $row[$request->fields['SenderId']];
             $RealEstateSupplier = $row[$request->fields['Real Estate Supplier']];
-            $csvImportTags = trim($SenderId).','.trim($RealEstateSupplier); //getting from csv            
+            $csvImportTags = strtolower(trim($SenderId).','.trim($RealEstateSupplier)); //getting from csv            
 
             $arr2 = array_filter(explode(",",$csvImportTags));
             $finalTags = implode(",",array_unique(array_merge($arr1, $arr2, $externalTags)));               
 
             $customerObj->company_id = implode(",",$alreadyAssignedCompanyIds);
-            $customerObj->tag_name = $finalTags;
+            $customerObj->tag_name = strtolower($finalTags);
             $customerObj->updated_at = strtotime(date('Y-m-d h:i:s'));                
             $customerObj->updated_by = Auth::user()->id;
 
@@ -349,7 +349,7 @@ class CustomerController extends Controller{
 
                 $finalTags = implode(",",array_unique(array_merge($existCustomerTags, $existCompanyTags)));
 
-                $companyObj->tag_name = $finalTags;
+                $companyObj->tag_name = strtolower($finalTags);
                 $companyObj->save();
 
                 if(!in_array($company_id, $alreadyAssignedCompanyIds)){
@@ -400,28 +400,13 @@ class CustomerController extends Controller{
 
         $response = array();
         if(!empty($request['querybuilder']))
-        {                      
-        //$rr = DB::select(DB::raw("select * from customers where tag_name LIKE '%spark10%' or tag_name NOT LIKE '%demo19%'"));
-        //$rr = DB::table("customers")->where("select * from customers where tag_name LIKE '%spark10%' or tag_name NOT LIKE '%demo19%'");
-        //$rr = DB::table("customers")->where("select * from customers where tag_name LIKE '%spark10%' or tag_name NOT LIKE '%demo19%'");
-        //$rr = DB::table("customers")->where('tag_name', 'like', '%spark10%')->orWhere('tag_name', 'NOT LIKE', '%demo19%');
-        //$rr = DB::table("customers")->where('tag_name', 'NOT LIKE', '%spark10%');//->orWhere('tag_name', 'NOT LIKE', '%demo19%');
-        //$rr = DB::table("customers")->where('tag_name', 'not regexp', '/^.*spark10.*/');//->orWhere('tag_name', 'NOT LIKE', '%demo19%');
-        //echo '<pre>';print_r($rr->get()->toArray());echo '</pre>';die('developer is working');
-        
-              
+        {
             $table = DB::collection('customers');
             $qbp = new QueryBuilderParser( array( 'tag_name' ) );
 
-            $query = $qbp->parse(json_encode($request['querybuilder']), $table);
-            //echo '<pre>';print_r($query->toSql());echo '</pre>';die('developer is working');
-                      //echo '<pre>';print_r($query->toSql());echo '</pre>';
-                     // echo '<pre>';print_r($query->getBindings());echo '</pre>';die('developer is working');
-                      
-            $rows = $query->get()->toArray(); //already including $query get()
-
-            #echo '<pre>';print_r($rows);echo '</pre>';die('developer is working');
-
+            $query = $qbp->parse(json_encode($request['querybuilder']), $table);                     
+            $rows = $query->get()->toArray();
+            
             $response = array(
             'status' => 'success',
             'counts' => count($rows),
@@ -497,7 +482,7 @@ class CustomerController extends Controller{
         ]);
 
         //external customer tags
-        $externalTags = str_replace("#","",trim($request->tag_name));
+        $externalTags = strtolower(str_replace("#","",trim($request->tag_name)));
         $externalTags = array_filter(explode(",",$externalTags));
 
         $company_ids = $request->company_id;
@@ -521,14 +506,14 @@ class CustomerController extends Controller{
                         $finalTags = implode(",",array_unique(array_merge($existCompanyTags, $existCustomersTags, $externalTags)));
 
                         $customerObj = Customers::find($customer['_id']);                        
-                        $customerObj->tag_name = $finalTags;
+                        $customerObj->tag_name = strtolower($finalTags);
                         $customerObj->save();              
                     }                  
                 }
 
                 //save same tag in company
                 $finalTags = implode(",",array_unique(array_merge($existCompanyTags, $existCustomersTags, $externalTags)));                
-                $companyObj->tag_name = $finalTags;;
+                $companyObj->tag_name = strtolower($finalTags);
                 $companyObj->save();
             }            
         }
