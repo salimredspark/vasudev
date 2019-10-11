@@ -365,7 +365,7 @@ class CustomerController extends Controller{
     public function export(Request $request){
         $customer =  Customers::all()->first();      
 
-        $skipColumns = array('_id', 'created_at', 'updated_at', 'updated_by');
+        $skipColumns = array('_id', 'created_at', 'updated_at', 'updated_by', 'company_id', 'created_by');
         $columns = array_keys($customer->getAttributes()); 
         foreach($skipColumns as $kk) {
             $indexCompleted = array_search($kk, $columns);            
