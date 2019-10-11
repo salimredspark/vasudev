@@ -110,4 +110,9 @@ https://medium.com/@LondonAppBrewery/how-to-download-install-mongodb-on-windows-
 
 3) run laravel migrate command in to CMD php artisan migrate:refresh
 ---------------------------------------------------------------------------------------------------------------------------------------------
+MongoDB Database Tables
+companies, customers, uploaded_csv, 
 
+Laravel Created Tables after migrate command run
+users, password_resets, migrations
+---------------------------------------------------------------------------------------------------------------------------------------------
