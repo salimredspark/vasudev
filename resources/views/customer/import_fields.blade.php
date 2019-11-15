@@ -101,6 +101,8 @@
     $(document).ready(function() {                                    
         $(".btn_saveimportprocess").on('click', function() {            
 
+            $(".frm_saveimportprocess").submit(); return;
+            
             var isSubmit = true;
 
             $( ".sel_fields" ).each(function( index ) {

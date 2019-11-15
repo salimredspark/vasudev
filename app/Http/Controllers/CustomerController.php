@@ -132,10 +132,10 @@ class CustomerController extends Controller{
 
             $customers = Customers::where('tag_name', 'LIKE', "%{$search}%")
             ->orWhere('Number', 'LIKE', "%{$search}%")->orderBy('created_at', 'DESC')->get()->toArray();
-            
-           // $customers = Customers::where('tag_name', 'regexp', "/{$search}.*/")
-           // ->orWhere('Number', 'regexp', "/{$search}.*/")->orderBy('created_at', 'DESC')->get()->toArray();
-             //echo $customers->toSql();die;
+
+            // $customers = Customers::where('tag_name', 'regexp', "/{$search}.*/")
+            // ->orWhere('Number', 'regexp', "/{$search}.*/")->orderBy('created_at', 'DESC')->get()->toArray();
+            //echo $customers->toSql();die;
             #$customers = DB::table('customers')->whereRaw("FIND_IN_SET('$search', tag_name)")->get()->toArray();            
             $recordsTotal = count( $customers );
         }else{        
@@ -225,7 +225,7 @@ class CustomerController extends Controller{
                 $csv_data = array_slice($data, 0, 2); //first 3 column excluding header 0 row
                 $csv_data_print = array_slice($data, 1, 3); //first 3 column excluding header 0 row
                 $configFields = Config::get('app.db_fields');
-                                
+
                 $print_csv_data = [];             
                 foreach($csv_data_print as $datakey => $csvD){                                        
                     foreach($configFields as $filedkey => $v){                    
@@ -233,7 +233,7 @@ class CustomerController extends Controller{
                         $print_csv_data[$datakey][$v] = ($searchkey) ? $csvD[$searchkey] : '--';
                     }                    
                 }
-                                                
+
                 $companyInfo = new Companies;
                 if($request->company_id){
                     $companyInfo = Companies::find($request->company_id);
@@ -320,11 +320,21 @@ class CustomerController extends Controller{
             }
 
             //customer tags
-            $SenderId = $row[$request->fields['SenderId']];
-            $RealEstateSupplier = $row[$request->fields['Real Estate Supplier']];
-            $csvImportTags = strtolower(trim($SenderId).','.trim($RealEstateSupplier)); //getting from csv            
+            $csvImportTags = '';
+            if(isset($request->fields['SenderId'])){
+                $SenderId = $row[$request->fields['SenderId']];
+                $csvImportTags .= strtolower(trim($SenderId));
+            }
 
-            $arr2 = array_filter(explode(",",$csvImportTags));
+            if(isset($request->fields['Real Estate Supplier'])){
+                $RealEstateSupplier = $row[$request->fields['Real Estate Supplier']];
+                $csvImportTags .= ','.strtolower(trim($RealEstateSupplier)); 
+            }
+            
+            if(!empty($csvImportTags)){
+                $arr2 = array_filter(explode(",",$csvImportTags));
+            }
+            
             $finalTags = implode(",",array_unique(array_merge($arr1, $arr2, $externalTags)));               
 
             $customerObj->company_id = implode(",",$alreadyAssignedCompanyIds);
@@ -334,6 +344,7 @@ class CustomerController extends Controller{
 
             //merge other fileds
             foreach (config('app.db_fields') as $index => $field) {
+                if(!isset($request->fields[$field])) continue;
                 $customerObj->$field = $row[$request->fields[$field]];                                                
             }
 
@@ -406,7 +417,7 @@ class CustomerController extends Controller{
 
             $query = $qbp->parse(strtolower(json_encode($request['querybuilder'])), $table);
             $rows = $query->get()->toArray();
-            
+
             $response = array(
             'status' => 'success',
             'counts' => count($rows),
@@ -430,10 +441,10 @@ class CustomerController extends Controller{
         #$qbp = new JoinSupportingQueryBuilderParser( array('tag_name' ), array( 'company_id' => 'companies._id' ) );
         $json = strtolower(preg_replace("!\r?\n!", "", $request->querybuilder));
         $query = $qbp->parse($json, $table);        
-                    
+
         //$query->withEloquent('getcompanies'); //getcompanies relation ship in customer model
         //$query->withEloquent('getcreated');  //getcreated relation ship in customer model        
-    
+
 
         $rows = [];
         if($limitType == 'all'){
