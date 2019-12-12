@@ -20,7 +20,7 @@
 
                     <div class="content">
 
-                        <form action="{{ route('companies-store') }}" method="post">
+                        <form action="{{ route('submit-all') }}" method="post">
                             {!! csrf_field() !!}    
                             <input type="hidden" name="id" value="{{$company->_id}}">
 

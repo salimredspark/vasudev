@@ -13,10 +13,13 @@ Install mongo-php-library
 https://github.com/mongodb/mongo-php-library
 composer require mongodb/mongodb
 ---------------------------------------------------------------------------------------------------
+Laravel Installer
+composer global require laravel/installer
+laravel new razzoo [project folder name --it will create auto]
+------------------------------------------------------------
 Installl Laravel with Latest Version
 composer create-project --prefer-dist laravel/laravel
-
-composer create-project laravel/laravel demo 6.0 --prefer-dist
+composer create-project laravel/laravel razzoo 6.0 --prefer-dist
 
 Install with specifice Version
 
