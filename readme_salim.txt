@@ -48,6 +48,12 @@ https://downloads.mongodb.com/compass/mongodb-compass-community-1.19.12-win32-x6
 
 C:\Users\Redspark\AppData\Roaming\Composer\vendor\bin;C:\python37;%PyCharm Community Edition%;C:\Program Files\MongoDB\Server\3.2\bin
 ----------------------------------------
+How To Start Mongo Service
+Goto 
+C:\Program Files\MongoDB\Server\3.2\bin
+and type
+mongod
+----------------------------------------
 Remote Access | DB Host
 ----------------------------------------
 Prinmary
